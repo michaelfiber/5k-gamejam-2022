@@ -30,9 +30,28 @@
     <!-- Favicon -->
     <link rel="shortcut icon" href="https://www.raylib.com/favicon.ico">
     
+    <!-- CSS to make game grow to fit whatever screen res it is on without distorting or getting cut off. -->
     <style>
-        canvas.emscripten { border: 0px none; background-color: black; }
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: black;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        canvas.emscripten { 
+            display: block;
+            object-fit: contain;
+            width: 100vw;
+            height: 100vh;
+            image-rendering: pixelated;
+        }
     </style>
+
+
     <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"> </script>
     <script type='text/javascript'>
         function saveFileFromMEMFSToDisk(memoryFSname, localFSname)     // This can be called by C/C++ code

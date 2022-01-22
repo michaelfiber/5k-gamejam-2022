@@ -1,3 +1,9 @@
+# compiled game stuff
+raylib_game.data
+raylib_game.html
+raylib_game.js
+raylib_game.wasm
+
 # Prerequisites
 *.d
 

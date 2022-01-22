@@ -33,10 +33,10 @@ PROJECT_NAME          ?= raylib_game
 PROJECT_VERSION       ?= 1.0
 PROJECT_BUILD_PATH    ?= .
 
-RAYLIB_PATH           ?= ../../raylib
+RAYLIB_PATH           ?= ../../../raylib/
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	RAYLIB_PATH = ../../raylib-web/raylib
+	RAYLIB_PATH = ../raylib/
 endif
 
 # Locations of raylib.h and libraylib.a/libraylib.so
