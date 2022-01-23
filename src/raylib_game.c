@@ -18,6 +18,8 @@
 #include <emscripten/emscripten.h>
 #endif
 
+// github user issu
+
 //----------------------------------------------------------------------------------
 // Shared Variables Definition (global)
 // NOTE: Those variables are shared between modules through screens.h
