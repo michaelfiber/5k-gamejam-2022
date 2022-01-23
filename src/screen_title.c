@@ -31,6 +31,8 @@
 //----------------------------------------------------------------------------------
 static int framesCounter = 0;
 static int finishScreen = 0;
+Vector2 titleDimensions = {0};
+char *title = "The ERNEST KING";
 
 //----------------------------------------------------------------------------------
 // Title Screen Functions Definition
@@ -42,6 +44,8 @@ void InitTitleScreen(void)
     // TODO: Initialize TITLE screen variables here!
     framesCounter = 0;
     finishScreen = 0;
+
+    titleDimensions = MeasureTextEx(font, title, font.baseSize * 4, 4);
 }
 
 // Title Screen Update logic
@@ -62,9 +66,9 @@ void UpdateTitleScreen(void)
 void DrawTitleScreen(void)
 {
     // TODO: Draw TITLE screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), GREEN);
-    DrawTextEx(font, "TITLE SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, DARKGREEN);
-    DrawText("PRESS ENTER or TAP to JUMP to GAMEPLAY SCREEN", 120, 220, 20, DARKGREEN);
+    DrawRectangle(0, 0, screenWidth, screenHeight, GREEN);
+    DrawTextEx(font, title, (Vector2){ screenWidth / 2.0f - titleDimensions.x / 2.0f, screenHeight / 2.0f - titleDimensions.y / 2.0f }, font.baseSize*4, 4, DARKGREEN);
+    DrawText("[ENTER or TAP]", 25, screenHeight - 40, 20, DARKGREEN);
 }
 
 // Title Screen Unload logic

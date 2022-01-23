@@ -1,4 +1,6 @@
 # compiled game stuff
+raylib/
+raylib_game
 raylib_game.data
 raylib_game.html
 raylib_game.js
