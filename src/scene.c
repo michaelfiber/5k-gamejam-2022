@@ -165,6 +165,7 @@ void DrawWalkingUI()
     Texture2D *deckTex;
     Color deckColor;
 
+
     UIDrawInsetRectangle(208, 324, 300, 120, BLACK);
 
     for (int i = 0; i < 10; i++)
