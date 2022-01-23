@@ -11,12 +11,11 @@
 *   Copyright (c) 2021 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
-
 #include "raylib.h"
-#include "screens.h"    // NOTE: Declares global (extern) variables and screens functions
+#include "screens.h" // NOTE: Declares global (extern) variables and screens functions
 
 #if defined(PLATFORM_WEB)
-    #include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #endif
 
 //----------------------------------------------------------------------------------
@@ -24,15 +23,17 @@
 // NOTE: Those variables are shared between modules through screens.h
 //----------------------------------------------------------------------------------
 GameScreen currentScreen = 0;
-Font font = { 0 };
-Music music = { 0 };
-Sound fxCoin = { 0 };
+Font font = {0};
+Music music = {0};
+Sound fxCoin = {0};
+int scale = 2;
+const int screenWidth = 512;
+const int screenHeight = 448;
 
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
-static const int screenWidth = 800;
-static const int screenHeight = 450;
+static Camera2D camera = {0};
 
 // Required variables to manage screen transitions (fade-in, fade-out)
 static float transAlpha = 0.0f;
@@ -44,13 +45,13 @@ static int transToScreen = -1;
 //----------------------------------------------------------------------------------
 // Local Functions Declaration
 //----------------------------------------------------------------------------------
-static void ChangeToScreen(int screen);     // Change to screen, no transition effect
+static void ChangeToScreen(int screen); // Change to screen, no transition effect
 
 static void TransitionToScreen(int screen); // Request transition to next screen
 static void UpdateTransition(void);         // Update transition effect
 static void DrawTransition(void);           // Draw transition effect (full-screen rectangle)
 
-static void UpdateDrawFrame(void);          // Update and draw one frame
+static void UpdateDrawFrame(void); // Update and draw one frame
 
 //----------------------------------------------------------------------------------
 // Main entry point
@@ -59,12 +60,12 @@ int main(void)
 {
     // Initialization
     //---------------------------------------------------------
-    InitWindow(screenWidth, screenHeight, "raylib game template");
+    InitWindow(screenWidth * scale, screenHeight * scale, "raylib game template");
 
-    InitAudioDevice();      // Initialize audio device
+    InitAudioDevice(); // Initialize audio device
 
     // Load global data (assets that must be available in all screens, i.e. font)
-    font = LoadFont("resources/mecha.png");
+    font = GetFontDefault(); // LoadFont("resources/mecha.png");
     music = LoadMusicStream("resources/ambient.ogg");
     fxCoin = LoadSound("resources/coin.wav");
 
@@ -75,14 +76,21 @@ int main(void)
     currentScreen = LOGO;
     InitLogoScreen();
 
+    // this generates all the NPCs and stuff that the scene system will use as the game runs.
+    InitSceneSystem();
+
+    camera.zoom = scale;
+    camera.offset.x = 0;
+    camera.offset.y = 0;
+
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(UpdateDrawFrame, 60, 1);
 #else
-    SetTargetFPS(60);       // Set our game to run at 60 frames-per-second
+    SetTargetFPS(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose()) // Detect window close button or ESC key
     {
         UpdateDrawFrame();
     }
@@ -93,11 +101,20 @@ int main(void)
     // Unload current screen data before closing
     switch (currentScreen)
     {
-        case LOGO: UnloadLogoScreen(); break;
-        case TITLE: UnloadTitleScreen(); break;
-        case GAMEPLAY: UnloadGameplayScreen(); break;
-        case ENDING: UnloadEndingScreen(); break;
-        default: break;
+    case LOGO:
+        UnloadLogoScreen();
+        break;
+    case TITLE:
+        UnloadTitleScreen();
+        break;
+    case GAMEPLAY:
+        UnloadGameplayScreen();
+        break;
+    case ENDING:
+        UnloadEndingScreen();
+        break;
+    default:
+        break;
     }
 
     // Unload global data loaded
@@ -105,9 +122,9 @@ int main(void)
     UnloadMusicStream(music);
     UnloadSound(fxCoin);
 
-    CloseAudioDevice();     // Close audio context
+    CloseAudioDevice(); // Close audio context
 
-    CloseWindow();          // Close window and OpenGL context
+    CloseWindow(); // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
 
     return 0;
@@ -122,21 +139,39 @@ static void ChangeToScreen(int screen)
     // Unload current screen
     switch (currentScreen)
     {
-        case LOGO: UnloadLogoScreen(); break;
-        case TITLE: UnloadTitleScreen(); break;
-        case GAMEPLAY: UnloadGameplayScreen(); break;
-        case ENDING: UnloadEndingScreen(); break;
-        default: break;
+    case LOGO:
+        UnloadLogoScreen();
+        break;
+    case TITLE:
+        UnloadTitleScreen();
+        break;
+    case GAMEPLAY:
+        UnloadGameplayScreen();
+        break;
+    case ENDING:
+        UnloadEndingScreen();
+        break;
+    default:
+        break;
     }
 
     // Init next screen
     switch (screen)
     {
-        case LOGO: InitLogoScreen(); break;
-        case TITLE: InitTitleScreen(); break;
-        case GAMEPLAY: InitGameplayScreen(); break;
-        case ENDING: InitEndingScreen(); break;
-        default: break;
+    case LOGO:
+        InitLogoScreen();
+        break;
+    case TITLE:
+        InitTitleScreen();
+        break;
+    case GAMEPLAY:
+        InitGameplayScreen();
+        break;
+    case ENDING:
+        InitEndingScreen();
+        break;
+    default:
+        break;
     }
 
     currentScreen = screen;
@@ -168,22 +203,42 @@ static void UpdateTransition(void)
             // Unload current screen
             switch (transFromScreen)
             {
-                case LOGO: UnloadLogoScreen(); break;
-                case TITLE: UnloadTitleScreen(); break;
-                case OPTIONS: UnloadOptionsScreen(); break;
-                case GAMEPLAY: UnloadGameplayScreen(); break;
-                case ENDING: UnloadEndingScreen(); break;
-                default: break;
+            case LOGO:
+                UnloadLogoScreen();
+                break;
+            case TITLE:
+                UnloadTitleScreen();
+                break;
+            case OPTIONS:
+                UnloadOptionsScreen();
+                break;
+            case GAMEPLAY:
+                UnloadGameplayScreen();
+                break;
+            case ENDING:
+                UnloadEndingScreen();
+                break;
+            default:
+                break;
             }
 
             // Load next screen
             switch (transToScreen)
             {
-                case LOGO: InitLogoScreen(); break;
-                case TITLE: InitTitleScreen(); break;
-                case GAMEPLAY: InitGameplayScreen(); break;
-                case ENDING: InitEndingScreen(); break;
-                default: break;
+            case LOGO:
+                InitLogoScreen();
+                break;
+            case TITLE:
+                InitTitleScreen();
+                break;
+            case GAMEPLAY:
+                InitGameplayScreen();
+                break;
+            case ENDING:
+                InitEndingScreen();
+                break;
+            default:
+                break;
             }
 
             currentScreen = transToScreen;
@@ -192,7 +247,7 @@ static void UpdateTransition(void)
             transFadeOut = true;
         }
     }
-    else  // Transition fade out logic
+    else // Transition fade out logic
     {
         transAlpha -= 0.02f;
 
@@ -210,7 +265,7 @@ static void UpdateTransition(void)
 // Draw transition effect (full-screen rectangle)
 static void DrawTransition(void)
 {
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, transAlpha));
+    DrawRectangle(0, 0, screenWidth, screenHeight, Fade(BLACK, transAlpha));
 }
 
 // Update and draw game frame
@@ -218,76 +273,100 @@ static void UpdateDrawFrame(void)
 {
     // Update
     //----------------------------------------------------------------------------------
-    UpdateMusicStream(music);       // NOTE: Music keeps playing between screens
+    UpdateMusicStream(music); // NOTE: Music keeps playing between screens
 
     if (!onTransition)
     {
-        switch(currentScreen)
+        switch (currentScreen)
         {
-            case LOGO:
-            {
-                UpdateLogoScreen();
+        case LOGO:
+        {
+            UpdateLogoScreen();
 
-                if (FinishLogoScreen()) TransitionToScreen(TITLE);
+            if (FinishLogoScreen())
+                TransitionToScreen(TITLE);
+        }
+        break;
+        case TITLE:
+        {
+            UpdateTitleScreen();
 
-            } break;
-            case TITLE:
-            {
-                UpdateTitleScreen();
+            if (FinishTitleScreen() == 1)
+                TransitionToScreen(OPTIONS);
+            else if (FinishTitleScreen() == 2)
+                TransitionToScreen(GAMEPLAY);
+        }
+        break;
+        case OPTIONS:
+        {
+            UpdateOptionsScreen();
 
-                if (FinishTitleScreen() == 1) TransitionToScreen(OPTIONS);
-                else if (FinishTitleScreen() == 2) TransitionToScreen(GAMEPLAY);
+            if (FinishOptionsScreen())
+                TransitionToScreen(TITLE);
+        }
+        break;
+        case GAMEPLAY:
+        {
+            UpdateGameplayScreen();
 
-            } break;
-            case OPTIONS:
-            {
-                UpdateOptionsScreen();
+            if (FinishGameplayScreen() == 1)
+                TransitionToScreen(ENDING);
+            //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
+        }
+        break;
+        case ENDING:
+        {
+            UpdateEndingScreen();
 
-                if (FinishOptionsScreen()) TransitionToScreen(TITLE);
-
-            } break;
-            case GAMEPLAY:
-            {
-                UpdateGameplayScreen();
-
-                if (FinishGameplayScreen() == 1) TransitionToScreen(ENDING);
-                //else if (FinishGameplayScreen() == 2) TransitionToScreen(TITLE);
-
-            } break;
-            case ENDING:
-            {
-                UpdateEndingScreen();
-
-                if (FinishEndingScreen() == 1) TransitionToScreen(TITLE);
-
-            } break;
-            default: break;
+            if (FinishEndingScreen() == 1)
+                TransitionToScreen(TITLE);
+        }
+        break;
+        default:
+            break;
         }
     }
-    else UpdateTransition();    // Update transition (fade-in, fade-out)
+    else
+        UpdateTransition(); // Update transition (fade-in, fade-out)
     //----------------------------------------------------------------------------------
 
     // Draw
     //----------------------------------------------------------------------------------
     BeginDrawing();
-
-        ClearBackground(RAYWHITE);
-
-        switch(currentScreen)
+    {
+        BeginMode2D(camera);
         {
-            case LOGO: DrawLogoScreen(); break;
-            case TITLE: DrawTitleScreen(); break;
-            case OPTIONS: DrawOptionsScreen(); break;
-            case GAMEPLAY: DrawGameplayScreen(); break;
-            case ENDING: DrawEndingScreen(); break;
-            default: break;
+            ClearBackground(RAYWHITE);
+
+            switch (currentScreen)
+            {
+            case LOGO:
+                DrawLogoScreen();
+                break;
+            case TITLE:
+                DrawTitleScreen();
+                break;
+            case OPTIONS:
+                DrawOptionsScreen();
+                break;
+            case GAMEPLAY:
+                DrawGameplayScreen();
+                break;
+            case ENDING:
+                DrawEndingScreen();
+                break;
+            default:
+                break;
+            }
+
+            // Draw full screen rectangle in front of everything
+            if (onTransition)
+                DrawTransition();
+
+            //DrawFPS(10, 10);
         }
-
-        // Draw full screen rectangle in front of everything
-        if (onTransition) DrawTransition();
-
-        //DrawFPS(10, 10);
-
+        EndMode2D();
+    }
     EndDrawing();
     //----------------------------------------------------------------------------------
 }

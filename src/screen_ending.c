@@ -61,7 +61,7 @@ void UpdateEndingScreen(void)
 void DrawEndingScreen(void)
 {
     // TODO: Draw ENDING screen here!
-    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), BLUE);
+    DrawRectangle(0, 0, screenWidth, screenHeight, BLUE);
     DrawTextEx(font, "ENDING SCREEN", (Vector2){ 20, 10 }, font.baseSize*3, 4, DARKBLUE);
     DrawText("PRESS ENTER or TAP to RETURN to TITLE SCREEN", 120, 220, 20, DARKBLUE);
 }

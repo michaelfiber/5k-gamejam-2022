@@ -33,6 +33,9 @@ PROJECT_NAME          ?= raylib_game
 PROJECT_VERSION       ?= 1.0
 PROJECT_BUILD_PATH    ?= .
 
+# Skip logo screen during dev
+SKIP_LOGO             ?= 0
+
 RAYLIB_PATH           ?= ../../../raylib/
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
@@ -194,6 +197,10 @@ endif
 #  -Wno-unused-value    ignore unused return values of some functions (i.e. fread())
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
 CFLAGS = -std=c99 -Wall -Wno-missing-braces -Wunused-result -D_DEFAULT_SOURCE
+
+ifeq ($(SKIP_LOGO),1)
+    CFLAGS += -DSKIP_LOGO
+endif
 
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g -D_DEBUG
@@ -382,7 +389,9 @@ PROJECT_SOURCE_FILES ?= \
     screen_title.c \
     screen_options.c \
     screen_gameplay.c \
-    screen_ending.c
+    screen_ending.c \
+    scene.c \
+    dialog.c
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))

@@ -54,11 +54,16 @@ static float alpha = 1.0f;         // Useful for fading
 void InitLogoScreen(void)
 {
     finishScreen = 0;
+
+#if defined(SKIP_LOGO)
+    finishScreen = 1;
+#endif
+
     framesCounter = 0;
     lettersCount = 0;
 
-    logoPositionX = GetScreenWidth()/2 - 128;
-    logoPositionY = GetScreenHeight()/2 - 128;
+    logoPositionX = screenWidth/2 - 128;
+    logoPositionY = screenHeight/2 - 128;
 
     topSideRecWidth = 16;
     leftSideRecHeight = 16;
@@ -152,9 +157,9 @@ void DrawLogoScreen(void)
         DrawRectangle(logoPositionX + 240, logoPositionY + 16, 16, rightSideRecHeight - 32, Fade(BLACK, alpha));
         DrawRectangle(logoPositionX, logoPositionY + 240, bottomSideRecWidth, 16, Fade(BLACK, alpha));
 
-        DrawRectangle(GetScreenWidth()/2 - 112, GetScreenHeight()/2 - 112, 224, 224, Fade(RAYWHITE, alpha));
+        DrawRectangle(screenWidth/2 - 112, screenHeight/2 - 112, 224, 224, Fade(RAYWHITE, alpha));
 
-        DrawText(TextSubtext("raylib", 0, lettersCount), GetScreenWidth()/2 - 44, GetScreenHeight()/2 + 48, 50, Fade(BLACK, alpha));
+        DrawText(TextSubtext("raylib", 0, lettersCount), screenWidth/2 - 44, screenHeight/2 + 48, 50, Fade(BLACK, alpha));
 
         if (framesCounter > 20) DrawText("powered by", logoPositionX, logoPositionY - 27, 20, Fade(DARKGRAY, alpha));
     }
